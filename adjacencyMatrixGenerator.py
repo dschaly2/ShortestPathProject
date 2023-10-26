@@ -6,7 +6,7 @@ import random
 G = nx.Graph()
 
 # Number of nodes in the graph
-num_nodes = 5
+num_nodes = 25
 
 # Add nodes to the graph
 G.add_nodes_from(range(num_nodes))
@@ -21,10 +21,10 @@ for u in G.nodes():
 # Generate the adjacency matrix
 adjacency_matrix = nx.to_numpy_array(G)
 
-print("Adjacency Matrix:")
-print(adjacency_matrix)
+# Convert the adjacency matrix to a list of lists
+adjacency_matrix_as_list = adjacency_matrix.tolist()
 
-i = 0
-for row in adjacency_matrix:
-    print(row[i])
-    i = i + 1
+# Print the adjacency matrix with elements separated by commas
+for row in adjacency_matrix_as_list:
+    print(", ".join(map(str, row)))
+
