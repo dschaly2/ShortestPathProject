@@ -11,26 +11,34 @@ class Node:
     def f_cost(self):
         return self.g_cost + self.h_cost
 
+    def __lt__(self, other):
+        # Use a tie-breaker value to compare nodes with equal f_cost
+        if self.f_cost() == other.f_cost():
+            return self.g_cost > other.g_cost
+        return self.f_cost() < other.f_cost()
+
 def astar(adj_matrix, start, end):
     num_nodes = len(adj_matrix)
     open_set = []
     closed_set = set()
+    visited_nodes = {}
 
     start_node = Node(start, None, 0, heuristic(start, end))
-    heapq.heappush(open_set, (start_node.f_cost(), start_node))
+    heapq.heappush(open_set, start_node)
 
     while open_set:
-        _, current_node = heapq.heappop(open_set)
+        current_node = heapq.heappop(open_set)
 
         if current_node.index == end:
-            # Reconstruct the path and return the distance
-            distance = current_node.g_cost
-            return distance
+            # Reconstruct the path and return the distance and nodes traveled
+            path = reconstruct_path(current_node)
+            return current_node.g_cost, path
 
         if current_node.index in closed_set:
             continue
 
         closed_set.add(current_node.index)
+        visited_nodes[current_node.index] = current_node
 
         for neighbor in range(num_nodes):
             if adj_matrix[current_node.index][neighbor] > 0:
@@ -39,29 +47,33 @@ def astar(adj_matrix, start, end):
                 neighbor_node = Node(neighbor, current_node, g_cost, h_cost)
 
                 if neighbor_node.index not in closed_set:
-                    heapq.heappush(open_set, (neighbor_node.f_cost(), neighbor_node))
+                    heapq.heappush(open_set, neighbor_node)
 
-    return float('inf')  # No path found
+    return float('inf'), []  # No path found
 
 def heuristic(node, end):
-    # A simple heuristic (Euclidean distance between nodes)
+    # heuristic (Euclidean distance between nodes)
     return np.sqrt((node // 2 - end // 2) ** 2 + (node % 2 - end % 2) ** 2)
 
-# Example usage:
+def reconstruct_path(node):
+    path = [node.index]
+    while node.parent:
+        path.insert(0, node.parent.index)
+        node = node.parent
+    return path
+
+
 adjacency_matrix = np.array([
-    [0, 4, 8, 6, 12],
-    [4, 0, 6, 15, 3],
-    [8, 6, 0, 14, 7],
-    [12, 3, 7, 8, 0]
+    # Matrix here
 ])
 
 start_node = 0
 end_node = 3
 
-shortest_distance = astar(adjacency_matrix, start_node, end_node)
+shortest_distance, nodes_traveled = astar(adjacency_matrix, start_node, end_node)
 
 if shortest_distance < float('inf'):
     print(f"Shortest distance from {start_node} to {end_node}: {shortest_distance}")
+    print(f"Nodes traveled: {nodes_traveled}")
 else:
     print(f"No path from {start_node} to {end_node}")
-
