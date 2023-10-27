@@ -12,7 +12,6 @@ class Node:
         return self.g_cost + self.h_cost
 
     def __lt__(self, other):
-        # Use a tie-breaker value to compare nodes with equal f_cost
         if self.f_cost() == other.f_cost():
             return self.g_cost > other.g_cost
         return self.f_cost() < other.f_cost()
@@ -23,15 +22,14 @@ def astar(adj_matrix, start, end):
     closed_set = set()
     visited_nodes = {}
 
-    start_node = Node(start, None, 0, heuristic(start, end))
+    start_node = Node(start, None, 0, adj_matrix[start][end])
     heapq.heappush(open_set, start_node)
 
     while open_set:
         current_node = heapq.heappop(open_set)
 
         if current_node.index == end:
-            # Reconstruct the path and return the distance and nodes traveled
-            path = reconstruct_path(current_node)
+            path = reconstruct_path(current_node, visited_nodes)
             return current_node.g_cost, path
 
         if current_node.index in closed_set:
@@ -43,25 +41,20 @@ def astar(adj_matrix, start, end):
         for neighbor in range(num_nodes):
             if adj_matrix[current_node.index][neighbor] > 0:
                 g_cost = current_node.g_cost + adj_matrix[current_node.index][neighbor]
-                h_cost = heuristic(neighbor, end)
+                h_cost = adj_matrix[neighbor][end]  # Updated heuristic to actual edge cost
                 neighbor_node = Node(neighbor, current_node, g_cost, h_cost)
 
                 if neighbor_node.index not in closed_set:
                     heapq.heappush(open_set, neighbor_node)
 
-    return float('inf'), []  # No path found
+    return float('inf'), []
 
-def heuristic(node, end):
-    # heuristic (Euclidean distance between nodes)
-    return np.sqrt((node // 2 - end // 2) ** 2 + (node % 2 - end % 2) ** 2)
-
-def reconstruct_path(node):
-    path = [node.index]
-    while node.parent:
-        path.insert(0, node.parent.index)
+def reconstruct_path(node, visited_nodes):
+    path = []
+    while node is not None:
+        path.insert(0, node.index)
         node = node.parent
     return path
-
 
 adjacency_matrix = np.array([
     # Matrix here
