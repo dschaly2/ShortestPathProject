@@ -23,8 +23,5 @@ adjacency_matrix = nx.to_numpy_array(G)
 
 # Convert the adjacency matrix to a list of lists
 adjacency_matrix_as_list = adjacency_matrix.tolist()
-
-# Print the adjacency matrix with elements separated by commas
-for row in adjacency_matrix_as_list:
-    print(", ".join(map(str, row)))
+print(adjacency_matrix_as_list)
 
