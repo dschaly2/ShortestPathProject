@@ -1,4 +1,9 @@
 import numpy as np
+import time
+import resource
+from config import dataset
+import pandas as pd
+from tabulate import tabulate
 
 def floyd_warshall_with_path(adj_matrix):
     num_nodes = len(adj_matrix)
@@ -23,81 +28,37 @@ def reconstruct_path(predecessors, start, end):
     return path1[:-1] + path2
 
 
-largest_adjacency_matrix = np.array([
-    [0.0, 2.0, 3.0, 13.0, 14.0, 11.0, 4.0, 7.0, 15.0, 6.0, 1.0, 10.0, 3.0, 13.0, 6.0, 12.0, 10.0, 4.0, 2.0, 13.0, 15.0, 3.0, 8.0, 12.0, 13.0],
-    [2.0, 0.0, 14.0, 3.0, 10.0, 9.0, 13.0, 1.0, 3.0, 2.0, 6.0, 10.0, 14.0, 9.0, 11.0, 1.0, 4.0, 6.0, 9.0, 4.0, 8.0, 10.0, 4.0, 12.0, 12.0],
-    [3.0, 14.0, 0.0, 8.0, 14.0, 9.0, 4.0, 2.0, 15.0, 2.0, 2.0, 15.0, 5.0, 8.0, 13.0, 15.0, 9.0, 14.0, 7.0, 1.0, 5.0, 15.0, 13.0, 6.0, 15.0],
-    [13.0, 3.0, 8.0, 0.0, 7.0, 7.0, 15.0, 11.0, 13.0, 11.0, 10.0, 5.0, 1.0, 9.0, 12.0, 15.0, 1.0, 5.0, 4.0, 13.0, 7.0, 10.0, 2.0, 3.0, 5.0],
-    [14.0, 10.0, 14.0, 7.0, 0.0, 5.0, 8.0, 14.0, 9.0, 7.0, 4.0, 5.0, 6.0, 10.0, 1.0, 14.0, 6.0, 13.0, 10.0, 13.0, 12.0, 9.0, 3.0, 1.0, 1.0],
-    [11.0, 9.0, 9.0, 7.0, 5.0, 0.0, 10.0, 9.0, 15.0, 13.0, 8.0, 1.0, 3.0, 12.0, 12.0, 6.0, 11.0, 2.0, 3.0, 10.0, 2.0, 8.0, 8.0, 9.0, 14.0],
-    [4.0, 13.0, 4.0, 15.0, 8.0, 10.0, 0.0, 2.0, 11.0, 6.0, 9.0, 14.0, 10.0, 9.0, 15.0, 8.0, 6.0, 3.0, 14.0, 2.0, 14.0, 1.0, 2.0, 14.0, 1.0],
-    [7.0, 1.0, 2.0, 11.0, 14.0, 9.0, 2.0, 0.0, 14.0, 15.0, 5.0, 7.0, 4.0, 11.0, 14.0, 4.0, 9.0, 4.0, 4.0, 8.0, 3.0, 9.0, 1.0, 8.0, 12.0],
-    [15.0, 3.0, 15.0, 13.0, 9.0, 15.0, 11.0, 14.0, 0.0, 13.0, 1.0, 12.0, 7.0, 3.0, 14.0, 12.0, 1.0, 5.0, 10.0, 15.0, 3.0, 8.0, 8.0, 10.0, 12.0],
-    [6.0, 2.0, 2.0, 11.0, 7.0, 13.0, 6.0, 15.0, 13.0, 0.0, 9.0, 4.0, 6.0, 4.0, 1.0, 8.0, 8.0, 12.0, 8.0, 15.0, 12.0, 6.0, 14.0, 11.0, 2.0],
-    [1.0, 6.0, 2.0, 10.0, 4.0, 8.0, 9.0, 5.0, 1.0, 9.0, 0.0, 10.0, 11.0, 3.0, 1.0, 8.0, 6.0, 13.0, 13.0, 8.0, 6.0, 11.0, 7.0, 4.0, 4.0],
-    [10.0, 10.0, 15.0, 5.0, 5.0, 1.0, 14.0, 7.0, 12.0, 4.0, 10.0, 0.0, 1.0, 9.0, 11.0, 11.0, 15.0, 4.0, 14.0, 4.0, 3.0, 9.0, 14.0, 14.0, 13.0],
-    [3.0, 14.0, 5.0, 1.0, 6.0, 3.0, 10.0, 4.0, 7.0, 6.0, 11.0, 1.0, 0.0, 1.0, 2.0, 7.0, 12.0, 12.0, 12.0, 14.0, 12.0, 12.0, 2.0, 7.0, 3.0],
-    [13.0, 9.0, 8.0, 9.0, 10.0, 12.0, 9.0, 11.0, 3.0, 4.0, 3.0, 9.0, 1.0, 0.0, 10.0, 3.0, 12.0, 5.0, 3.0, 3.0, 1.0, 1.0, 13.0, 14.0, 9.0],
-    [6.0, 11.0, 13.0, 12.0, 1.0, 12.0, 15.0, 14.0, 14.0, 1.0, 1.0, 11.0, 2.0, 10.0, 0.0, 14.0, 9.0, 2.0, 12.0, 7.0, 13.0, 5.0, 15.0, 5.0, 11.0],
-    [12.0, 1.0, 15.0, 15.0, 14.0, 6.0, 8.0, 4.0, 12.0, 8.0, 8.0, 11.0, 7.0, 3.0, 14.0, 0.0, 15.0, 12.0, 2.0, 10.0, 13.0, 15.0, 7.0, 5.0, 9.0],
-    [10.0, 4.0, 9.0, 1.0, 6.0, 11.0, 6.0, 9.0, 1.0, 8.0, 6.0, 15.0, 12.0, 12.0, 9.0, 15.0, 0.0, 2.0, 14.0, 3.0, 2.0, 3.0, 12.0, 15.0, 4.0],
-    [4.0, 6.0, 14.0, 5.0, 13.0, 2.0, 3.0, 4.0, 5.0, 12.0, 13.0, 4.0, 12.0, 5.0, 2.0, 12.0, 2.0, 0.0, 5.0, 10.0, 6.0, 15.0, 9.0, 5.0, 2.0],
-    [2.0, 9.0, 7.0, 4.0, 10.0, 3.0, 14.0, 4.0, 10.0, 8.0, 13.0, 14.0, 12.0, 3.0, 12.0, 2.0, 14.0, 5.0, 0.0, 10.0, 1.0, 1.0, 10.0, 10.0, 2.0],
-    [13.0, 4.0, 1.0, 13.0, 13.0, 10.0, 2.0, 8.0, 15.0, 15.0, 8.0, 4.0, 14.0, 3.0, 7.0, 10.0, 3.0, 10.0, 10.0, 0.0, 12.0, 1.0, 10.0, 1.0, 7.0],
-    [15.0, 8.0, 5.0, 7.0, 12.0, 2.0, 14.0, 3.0, 3.0, 12.0, 6.0, 3.0, 12.0, 1.0, 13.0, 13.0, 2.0, 6.0, 1.0, 12.0, 0.0, 2.0, 15.0, 14.0, 5.0],
-    [3.0, 10.0, 15.0, 10.0, 9.0, 8.0, 1.0, 9.0, 8.0, 6.0, 11.0, 9.0, 12.0, 1.0, 5.0, 15.0, 3.0, 15.0, 1.0, 1.0, 2.0, 0.0, 10.0, 8.0, 1.0],
-    [8.0, 4.0, 13.0, 2.0, 3.0, 8.0, 2.0, 1.0, 8.0, 14.0, 7.0, 14.0, 2.0, 13.0, 15.0, 7.0, 12.0, 9.0, 10.0, 10.0, 15.0, 10.0, 0.0, 10.0, 6.0],
-    [12.0, 12.0, 6.0, 3.0, 1.0, 9.0, 14.0, 8.0, 10.0, 11.0, 4.0, 14.0, 7.0, 14.0, 5.0, 5.0, 15.0, 5.0, 10.0, 1.0, 14.0, 8.0, 10.0, 0.0, 8.0],
-    [13.0, 12.0, 15.0, 5.0, 1.0, 14.0, 1.0, 12.0, 12.0, 2.0, 4.0, 13.0, 3.0, 9.0, 11.0, 9.0, 4.0, 2.0, 2.0, 7.0, 5.0, 1.0, 6.0, 8.0, 0.0]
-])
+def run(testcase, start, end):
 
-smallest_adjacency_matrix = np.array([
-    [0.0, 14.0, 3.0, 3.0, 12.0], [14.0, 0.0, 12.0, 2.0, 9.0], 
-    [3.0, 12.0, 0.0, 11.0, 14.0], [3.0, 2.0, 11.0, 0.0, 4.0], 
-    [12.0, 9.0, 14.0, 4.0, 0.0]
-])
+    results = []
+    time_start = time.process_time()
+    
 
-blocked_adjacency_matrix = np.array([
-    [0.0, 5.0, 5.0, 13.0, 6.0, 100.0, 6.0, 14.0, 8.0, 2.0, 5.0, 5.0, 2.0, 100.0, 3.0], [5.0, 0.0, 7.0, 15.0, 3.0, 8.0, 3.0, 14.0, 3.0, 100.0, 6.0, 5.0, 8.0, 6.0, 1.0], 
-    [5.0, 7.0, 0.0, 4.0, 12.0, 15.0, 5.0, 15.0, 9.0, 15.0, 2.0, 4.0, 100.0, 3.0, 12.0], [13.0, 15.0, 4.0, 0.0, 5.0, 1.0, 11.0, 4.0, 3.0, 100.0, 3.0, 5.0, 11.0, 8.0, 13.0], 
-    [6.0, 3.0, 12.0, 100.0, 0.0, 10.0, 13.0, 8.0, 9.0, 7.0, 1.0, 13.0, 5.0, 12.0, 7.0], [15.0, 8.0, 15.0, 1.0, 10.0, 0.0, 11.0, 1.0, 5.0, 100.0, 6.0, 1.0, 2.0, 6.0, 15.0], 
-    [6.0, 3.0, 5.0, 11.0, 100.0, 11.0, 0.0, 7.0, 13.0, 7.0, 2.0, 1.0, 13.0, 14.0, 3.0], [14.0, 14.0, 15.0, 4.0, 8.0, 1.0, 7.0, 0.0, 14.0, 100.0, 1.0, 15.0, 5.0, 14.0, 13.0], 
-    [8.0, 3.0, 9.0, 3.0, 9.0, 5.0, 13.0, 14.0, 0.0, 13.0, 10.0, 11.0, 3.0, 13.0, 12.0], [2.0, 8.0, 15.0, 6.0, 7.0, 2.0, 7.0, 6.0, 13.0, 100.0, 5.0, 1.0, 7.0, 3.0, 6.0], 
-    [5.0, 6.0, 2.0, 3.0, 1.0, 6.0, 100.0, 1.0, 10.0, 5.0, 0.0, 100.0, 5.0, 14.0, 5.0], [5.0, 5.0, 4.0, 5.0, 13.0, 1.0, 1.0, 15.0, 11.0, 1.0, 13.0, 0.0, 6.0, 100.0, 13.0], 
-    [2.0, 8.0, 5.0, 11.0, 5.0, 2.0, 13.0, 5.0, 100.0, 7.0, 5.0, 6.0, 0.0, 7.0, 7.0], [14.0, 6.0, 3.0, 8.0, 12.0, 6.0, 14.0, 14.0, 13.0, 3.0, 14.0, 12.0, 7.0, 0.0, 5.0], 
-    [3.0, 1.0, 12.0, 13.0, 7.0, 15.0, 100.0, 13.0, 12.0, 6.0, 5.0, 13.0, 7.0, 5.0, 0.0]
-])
+    all_shortest_distances, predecessors = floyd_warshall_with_path(dataset(testcase))
+    shortest_distance = all_shortest_distances[start][end]
 
-start_node = 0
-end_node = 4
+    if shortest_distance < float('inf'):
+        results.append(f"{start} to {end}: {shortest_distance}")
+        shortest_path = reconstruct_path(predecessors, start, end)
+        results.append(f"{shortest_path}")
 
-all_shortest_distances, predecessors = floyd_warshall_with_path(largest_adjacency_matrix)
-shortest_distance = all_shortest_distances[start_node][end_node]
+        time_elapsed = (time_start)
+        memMb=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0/1024.0
+        results.append("%5.1f secs %5.1f MByte" % (time_elapsed,memMb))
+        df = pd.DataFrame(results, index=['Shortest Distance', 'Nodes Traveled', 'Time/Memory'], columns=['Data'])
+    else:
+        print(f"No path from {start} to {end}")
 
-if shortest_distance < float('inf'):
-    print(f"Shortest distance from {start_node} to {end_node}: {shortest_distance}")
-    shortest_path = reconstruct_path(predecessors, start_node, end_node)
-    print(f"Shortest path: {shortest_path}")
-else:
-    print(f"No path from {start_node} to {end_node}")
+        time_elapsed = (time.perf_counter() - time_start)
+        memMb=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0/1024.0
+        print("%5.1f secs %5.1f MByte" % (time_elapsed,memMb))
 
-all_shortest_distances, predecessors = floyd_warshall_with_path(smallest_adjacency_matrix)
-shortest_distance = all_shortest_distances[start_node][end_node]
+    
+    return tabulate(df, headers = 'keys', tablefmt = 'psql')
+    
 
-if shortest_distance < float('inf'):
-    print(f"Shortest distance from {start_node} to {end_node}: {shortest_distance}")
-    shortest_path = reconstruct_path(predecessors, start_node, end_node)
-    print(f"Shortest path: {shortest_path}")
-else:
-    print(f"No path from {start_node} to {end_node}")
-
-all_shortest_distances, predecessors = floyd_warshall_with_path(blocked_adjacency_matrix)
-shortest_distance = all_shortest_distances[start_node][end_node]
-
-if shortest_distance < float('inf'):
-    print(f"Shortest distance from {start_node} to {end_node}: {shortest_distance}")
-    shortest_path = reconstruct_path(predecessors, start_node, end_node)
-    print(f"Shortest path: {shortest_path}")
-else:
-    print(f"No path from {start_node} to {end_node}")
-
+print(run("Bestcase", 0, 9))
+print(run("Worstcase", 0, 5))
+print(run("Smallest", 0, 3))
+print(run("Longest", 7, 21))
+print(run("Blockedcase", 3,8))
