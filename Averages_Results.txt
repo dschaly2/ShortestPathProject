@@ -1,0 +1,36 @@
+A*
+
+Bestcase: Average Time: 0.00199 secs, Average Memory: 84.57500 MByte
+
+Worstcase: Average Time: 0.00108 secs, Average Memory: 84.63438 MByte
+
+Smallest: Average Time: 0.00141 secs, Average Memory: 84.64062 MByte
+
+Longest: Average Time: 0.00243 secs, Average Memory: 84.64062 MByte
+
+Blocked: Average Time: 0.00113 secs, Average Memory: 84.64062 MByte
+
+Dijstra
+
+Bestcase: Average Time: 0.00220 secs, Average Memory: 84.13750 MByte
+
+Worstcase: Average Time: 0.00067 secs, Average Memory: 84.18750 MByte
+
+Smallest: Average Time: 0.00035 secs, Average Memory: 84.18750 MByte
+
+Longest: Average Time: 0.01029 secs, Average Memory: 84.29375 MByte
+
+Blocked: Average Time: 0.00049 secs, Average Memory: 84.38750 MByte
+
+Floyds
+
+
+Bestcase: Average Time: 0.00527 secs, Average Memory: 105.70000 MByte
+
+Worstcase: Average Time: 0.00570 secs, Average Memory: 105.83437 MByte
+
+Smallest: Average Time: 0.00039 secs, Average Memory: 105.85938 MByte
+
+Longest: Average Time: 0.33282 secs, Average Memory: 105.85938 MByte
+
+Blocked: Average Time: 0.00585 secs, Average Memory: 105.85938 MByte
