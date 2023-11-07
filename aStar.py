@@ -88,8 +88,8 @@ def run(testcase, start, end):
     return tabulate(df, headers = 'keys', tablefmt = 'psql')
     
 
-print(run("Bestcase", 0, 8))
-print(run("Worstcase", 0, 5))
-print(run("Smallest", 0, 3))
-print(run("Longest", 4, 23))
-print(run("Blockedcase", 3,8))
+print(run("Bestcase", 4, 17))
+print(run("Worstcase", 6, 24))
+print(run("Smallest", 2, 4))
+print(run("Longest", 23, 88))
+print(run("Blockedcase", 0,24))
