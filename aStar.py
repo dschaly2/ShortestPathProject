@@ -77,7 +77,7 @@ def run(testcase, start, end):
         
         memMb=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0/1024.0
         results.append("{:.5f} secs {:.5f} MByte".format(time_elapsed, memMb))
-        df = pd.DataFrame(results, index=['Shortest Distance', 'Nodes Traveled', 'Time/Memory'], columns=['Data'])
+        df = pd.DataFrame(results, index=['Shortest Distance', 'Nodes Traveled', 'Time/Memory'], columns=[testcase+" Data"])
     else:
         print(f"No path from {start} to {end}")
 
