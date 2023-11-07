@@ -42,16 +42,16 @@ def run(testcase, start, end):
         shortest_path = reconstruct_path(predecessors, start, end)
         results.append(f"{shortest_path}")
 
-        time_elapsed = (time_start)
+        time_elapsed = ((time.process_time() - time_start))
         memMb=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0/1024.0
-        results.append("%5.1f secs %5.1f MByte" % (time_elapsed,memMb))
+        results.append("{:.5f} secs {:.5f} MByte".format(time_elapsed, memMb))
         df = pd.DataFrame(results, index=['Shortest Distance', 'Nodes Traveled', 'Time/Memory'], columns=['Data'])
     else:
         print(f"No path from {start} to {end}")
 
-        time_elapsed = (time.perf_counter() - time_start)
+        time_elapsed = ((time.process_time() - time_start))
         memMb=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0/1024.0
-        print("%5.1f secs %5.1f MByte" % (time_elapsed,memMb))
+        results.append("{:.5f} secs {:.5f} MByte".format(time_elapsed, memMb))
 
     
     return tabulate(df, headers = 'keys', tablefmt = 'psql')
