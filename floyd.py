@@ -5,6 +5,7 @@ from config import dataset
 import pandas as pd
 from tabulate import tabulate
 
+
 def floyd_warshall_with_path(adj_matrix):
     num_nodes = len(adj_matrix)
     distances = np.copy(adj_matrix)
@@ -19,6 +20,7 @@ def floyd_warshall_with_path(adj_matrix):
 
     return distances, predecessors
 
+
 def reconstruct_path(predecessors, start, end):
     if predecessors[start][end] == -1:
         return [start, end]
@@ -29,36 +31,37 @@ def reconstruct_path(predecessors, start, end):
 
 
 def run(testcase, start, end):
-
     results = []
     time_start = time.process_time()
-    
 
     all_shortest_distances, predecessors = floyd_warshall_with_path(dataset(testcase))
     shortest_distance = all_shortest_distances[start][end]
 
-    if shortest_distance < float('inf'):
+    if shortest_distance < float("inf"):
         results.append(f"{start} to {end}: {shortest_distance}")
         shortest_path = reconstruct_path(predecessors, start, end)
         results.append(f"{shortest_path}")
 
-        time_elapsed = ((time.process_time() - time_start))
-        memMb=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0/1024.0
+        time_elapsed = time.process_time() - time_start
+        memMb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0 / 1024.0
         results.append("{:.5f} secs {:.5f} MByte".format(time_elapsed, memMb))
-        df = pd.DataFrame(results, index=['Shortest Distance', 'Nodes Traveled', 'Time/Memory'], columns=['Data'])
+        df = pd.DataFrame(
+            results,
+            index=["Shortest Distance", "Nodes Traveled", "Time/Memory"],
+            columns=["Data"],
+        )
     else:
         print(f"No path from {start} to {end}")
 
-        time_elapsed = ((time.process_time() - time_start))
-        memMb=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0/1024.0
+        time_elapsed = time.process_time() - time_start
+        memMb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0 / 1024.0
         results.append("{:.5f} secs {:.5f} MByte".format(time_elapsed, memMb))
 
-    
-    return tabulate(df, headers = 'keys', tablefmt = 'psql')
-    
+    return tabulate(df, headers="keys", tablefmt="psql")
 
-print(run("Bestcase", 0, 9))
-print(run("Worstcase", 0, 5))
-print(run("Smallest", 0, 3))
-print(run("Longest", 7, 21))
-print(run("Blockedcase", 3,8))
+
+print(run("Bestcase", 4, 17))
+print(run("Worstcase", 6, 24))
+print(run("Smallest", 2, 4))
+print(run("Longest", 23, 88))
+print(run("Blockedcase", 0, 24))
