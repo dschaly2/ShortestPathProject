@@ -73,22 +73,23 @@ def run(testcase, start, end):
         results.append(f"{start} to {end}: {shortest_distance}")
         results.append(f"{nodes_traveled}")
 
-        time_elapsed = (time_start)
+        time_elapsed = ((time.process_time() - time_start))
+        
         memMb=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0/1024.0
-        results.append("%5.1f secs %5.1f MByte" % (time_elapsed,memMb))
+        results.append("{:.5f} secs {:.5f} MByte".format(time_elapsed, memMb))
         df = pd.DataFrame(results, index=['Shortest Distance', 'Nodes Traveled', 'Time/Memory'], columns=['Data'])
     else:
         print(f"No path from {start} to {end}")
 
         time_elapsed = (time.perf_counter() - time_start)
         memMb=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0/1024.0
-        print("%5.1f secs %5.1f MByte" % (time_elapsed,memMb))
+        results.append("{:.5f} secs {:.5f} MByte".format(time_elapsed, memMb))
 
     return tabulate(df, headers = 'keys', tablefmt = 'psql')
     
 
-print(run("Bestcase", 0, 9))
+print(run("Bestcase", 0, 8))
 print(run("Worstcase", 0, 5))
 print(run("Smallest", 0, 3))
-print(run("Longest", 7, 21))
+print(run("Longest", 4, 23))
 print(run("Blockedcase", 3,8))
