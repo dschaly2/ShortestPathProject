@@ -48,7 +48,7 @@ def run(testcase, start, end):
         df = pd.DataFrame(
             results,
             index=["Shortest Distance", "Nodes Traveled", "Time/Memory"],
-            columns=["Data"],
+            columns=[testcase+" Data"],
         )
     else:
         print(f"No path from {start} to {end}")
